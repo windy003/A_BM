@@ -1,8 +1,11 @@
 package com.example.batteryweb
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import io.ktor.http.*
+import java.io.ByteArrayOutputStream
 import io.ktor.serialization.gson.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -13,6 +16,7 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.*
 import java.net.InetAddress
 import java.net.NetworkInterface
+import androidx.core.content.ContextCompat
 
 class WebServer(
     private val context: Context,
@@ -41,6 +45,9 @@ class WebServer(
                                     <title>Battery Status Server</title>
                                     <meta charset="utf-8">
                                     <meta name="viewport" content="width=device-width, initial-scale=1">
+                                    <link rel="apple-touch-icon" sizes="1024x1024" href="/icon/a1024x1024.png">
+                                    <link rel="icon" type="image/png" sizes="1024x1024" href="/icon/a1024x1024.png">
+                                    <link rel="shortcut icon" href="/icon/a1024x1024.png">
                                     <style>
                                         body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
                                         .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -94,6 +101,31 @@ class WebServer(
                                 "port" to port,
                                 "ip" to getLocalIpAddress()
                             ))
+                        }
+                        
+                        get("/icon/{filename}") {
+                            val filename = call.parameters["filename"]
+                            if (filename == "a1024x1024.png") {
+                                try {
+                                    val drawable = ContextCompat.getDrawable(this@WebServer.context, R.drawable.a1024x1024)
+                                    
+                                    if (drawable is BitmapDrawable) {
+                                        val bitmap = drawable.bitmap
+                                        val byteArrayOutputStream = ByteArrayOutputStream()
+                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+                                        val bytes = byteArrayOutputStream.toByteArray()
+                                        byteArrayOutputStream.close()
+                                        call.respondBytes(bytes, ContentType.Image.PNG)
+                                    } else {
+                                        call.respond(HttpStatusCode.NotFound, "Icon format not supported")
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("WebServer", "获取图标失败", e)
+                                    call.respond(HttpStatusCode.NotFound, "Icon not found")
+                                }
+                            } else {
+                                call.respond(HttpStatusCode.NotFound, "Icon not found")
+                            }
                         }
                     }
                 }.start(wait = false)
