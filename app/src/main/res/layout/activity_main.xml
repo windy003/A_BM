@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="#f5f5f5">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🔋 电池Web服务器"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:layout_marginBottom="32dp" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:elevation="4dp"
+        android:radius="12dp">
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="正在加载..."
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:lineSpacingExtra="4dp"
+            android:background="@android:color/white" />
+
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="🚀 启动服务器"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_start"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp"
+            android:elevation="2dp" />
+
+        <Button
+            android:id="@+id/stopButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="⏹️ 停止服务器"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_stop"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp"
+            android:elevation="2dp"
+            android:enabled="false" />
+
+        <Button
+            android:id="@+id/openBrowserButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="🌐 在浏览器中打开"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_browser"
+            android:textColor="@android:color/white"
+            android:elevation="2dp"
+            android:enabled="false" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="💡 提示：启动服务器后，局域网内的设备可以通过显示的IP地址访问电池信息"
+        android:textSize="14sp"
+        android:textColor="#999999"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:padding="16dp"
+        android:background="@drawable/info_background" />
+
+</LinearLayout>
