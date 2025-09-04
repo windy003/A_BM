@@ -109,8 +109,14 @@ class WebServer(
     fun stop() {
         serverJob?.cancel()
         server?.stop(1000, 5000)
+        server = null
+        serverJob = null
         batteryMonitor.unregister()
         Log.d("WebServer", "服务器已停止")
+    }
+    
+    fun isRunning(): Boolean {
+        return server != null && serverJob?.isActive == true
     }
     
     fun getServerInfo(): Map<String, String> {

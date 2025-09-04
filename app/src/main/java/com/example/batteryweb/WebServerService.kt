@@ -16,6 +16,7 @@ class WebServerService : Service() {
     private lateinit var webServer: WebServer
     private val channelId = "WebServerChannel"
     private val notificationId = 1
+    private var shouldRestart = true
     
     companion object {
         const val ACTION_START = "START_SERVER"
@@ -49,21 +50,56 @@ class WebServerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
-                webServer.start()
                 startForeground(notificationId, createNotification())
+                if (!webServer.isRunning()) {
+                    webServer.start()
+                }
             }
             ACTION_STOP -> {
+                shouldRestart = false
                 webServer.stop()
                 stopForeground(true)
                 stopSelf()
             }
+            else -> {
+                // 系统重启服务时
+                startForeground(notificationId, createNotification())
+                if (!webServer.isRunning()) {
+                    webServer.start()
+                }
+            }
         }
-        return START_STICKY
+        return START_STICKY // 系统资源充足时自动重启服务
     }
     
     override fun onDestroy() {
         super.onDestroy()
         webServer.stop()
+        
+        // 如果不是用户主动停止，尝试重启服务
+        if (shouldRestart) {
+            val restartIntent = Intent(this, WebServerService::class.java).apply {
+                action = ACTION_START
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(restartIntent)
+            } else {
+                startService(restartIntent)
+            }
+        }
+    }
+    
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        // App从最近任务中移除时，保持服务运行
+        val restartServiceIntent = Intent(applicationContext, WebServerService::class.java).apply {
+            action = ACTION_START
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(restartServiceIntent)
+        } else {
+            startService(restartServiceIntent)
+        }
     }
     
     override fun onBind(intent: Intent?): IBinder? = null
@@ -108,11 +144,14 @@ class WebServerService : Service() {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("电池Web服务器运行中")
             .setContentText("访问地址: ${serverInfo["url"]}")
-            .setSmallIcon(R.drawable.ic_battery_web)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(pendingIntent)
-            .addAction(R.drawable.ic_stop, "停止", stopPendingIntent)
+            .addAction(android.R.drawable.ic_media_pause, "停止", stopPendingIntent)
             .setOngoing(true)
             .setSilent(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setAutoCancel(false)
             .build()
     }
 }
